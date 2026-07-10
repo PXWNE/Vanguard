@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vanguard CSPM</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        /* ── Notion warm canvas ── */
+        --bg:       #ffffff;
+        --surface:  #f6f5f4;
+        --card:     #ffffff;
+        --border:   rgba(0,0,0,0.09);
+
+        /* ── Text — warm gray scale ── */
+        --accent:   rgba(0,0,0,0.9);
+        --accent2:  #615d59;
+        --accent3:  #a39e98;
+
+        /* ── Soft blue — primary interactive ── */
+        --cyan:     #4b7bc9;
+        --blue:     #4b7bc9;
+        --purple:   #5a6fa8;
+        --magenta:  #7a8fa8;
+
+        /* ── Semantic — muted, functional only ── */
+        --green:    #3a8a60;
+        --red:      #b54545;
+        --orange:   #b06c2a;
+        --yellow:   #9a7d18;
+
+        /* ── Notion multi-layer shadows ── */
+        --shadow-card: rgba(0,0,0,0.04) 0px 4px 18px,
+                       rgba(0,0,0,0.027) 0px 2.025px 7.847px,
+                       rgba(0,0,0,0.02) 0px 0.8px 2.925px,
+                       rgba(0,0,0,0.01) 0px 0.175px 1.04px;
+        --shadow-md:   rgba(0,0,0,0.04) 0px 8px 32px,
+                       rgba(0,0,0,0.03) 0px 4px 16px,
+                       rgba(0,0,0,0.02) 0px 2px 8px,
+                       rgba(0,0,0,0.01) 0px 0.5px 2px;
+        --shadow-soft: rgba(0,0,0,0.01) 0px 1px 3px,
+                       rgba(0,0,0,0.02) 0px 3px 7px,
+                       rgba(0,0,0,0.02) 0px 7px 15px,
+                       rgba(0,0,0,0.04) 0px 14px 28px,
+                       rgba(0,0,0,0.05) 0px 23px 52px;
+        --glow-cyan:    0 0 0 3px rgba(75,123,201,0.16);
+        --glow-magenta: 0 0 0 3px rgba(0,0,0,0.08);
+        --glow-green:   0 0 0 3px rgba(26,174,57,0.15);
+        --glow-red:     0 0 0 3px rgba(224,62,62,0.15);
+
+        /* ── Fonts ── */
+        --font-display: "Inter", -apple-system, system-ui, "Segoe UI", sans-serif;
+        --font-ui:      "Inter", -apple-system, system-ui, "Segoe UI", sans-serif;
+        --font-mono:    "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+
+        /* ── Sidebar ── */
+        --sidebar-bg:     #ffffff;
+        --sidebar-border: rgba(0,0,0,0.08);
+
+        /* ── Nav ── */
+        --nav-divider:       rgba(0,0,0,0.07);
+        --nav-active-bg:     #f6f5f4;
+        --nav-active-glow:   transparent;
+        --admin-active-bg:   #f6f5f4;
+        --admin-active-glow: transparent;
+        --bottom-divider:    rgba(0,0,0,0.07);
+
+        /* ── Role badges ── */
+        --role-admin-bg:     rgba(0,117,222,0.07);
+        --role-admin-border: rgba(0,117,222,0.18);
+        --role-super-bg:     rgba(0,117,222,0.1);
+        --role-super-border: rgba(0,117,222,0.25);
+
+        /* ── Radius ── */
+        --radius:    4px;
+        --radius-md: 8px;
+        --radius-lg: 12px;
+
+        /* ── Emil easing curves ── */
+        --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+        --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+      }
+
+      html, body, #root {
+        height: 100%;
+        background: var(--bg);
+        color: var(--accent);
+      }
+
+      body {
+        font-family: var(--font-ui);
+        font-size: 14px;
+        letter-spacing: -0.006em;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* ── Scrollbar ── */
+      ::-webkit-scrollbar { width: 5px; height: 5px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.22); }
+
+      input, select, button, textarea { font-family: inherit; }
+      input::placeholder, textarea::placeholder { color: var(--accent3); }
+
+      input:focus, select:focus, textarea:focus {
+        outline: none !important;
+        border-color: #4b7bc9 !important;
+        box-shadow: 0 0 0 3px rgba(75,123,201,0.14) !important;
+      }
+
+      /* ── Keyframes — Emil-approved ── */
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      /* Entry: from slight offset + opacity, never from scale(0) */
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes floatIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-10px); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.96); }
+        to   { opacity: 1; transform: scale(1); }
+      }
+      @keyframes modalIn {
+        from { opacity: 0; transform: scale(0.97) translateY(4px); }
+        to   { opacity: 1; transform: scale(1) translateY(0); }
+      }
+      @keyframes overlayIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+      @keyframes shimmerFlow {
+        0%   { background-position: -400px 0; }
+        100% { background-position: 400px 0; }
+      }
+      @keyframes navIndicator {
+        from { opacity: 0; transform: scaleY(0.4); }
+        to   { opacity: 1; transform: scaleY(1); }
+      }
+      @keyframes cardSpring {
+        0%   { opacity: 0; transform: scale(0.96) translateY(16px); }
+        60%  { opacity: 1; transform: scale(1.01) translateY(-2px); }
+        100% { transform: scale(1) translateY(0); }
+      }
+      @keyframes countUp {
+        from { opacity: 0; transform: translateY(4px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.1s !important;
+        }
+      }
+
+      /* ── Animation utility classes ── */
+      .page-enter {
+        animation: floatIn 0.28s var(--ease-out) both;
+      }
+
+      /* Stagger helper — JS sets --i via style attribute */
+      .stagger-item {
+        animation: floatIn 0.32s var(--ease-out) both;
+        animation-delay: calc(var(--i, 0) * 50ms);
+      }
+
+      /* Skeleton shimmer */
+      .skeleton {
+        background: linear-gradient(90deg,
+          var(--surface) 25%, rgba(0,117,222,0.04) 50%, var(--surface) 75%);
+        background-size: 400px 100%;
+        animation: shimmerFlow 1.4s ease-in-out infinite;
+        border-radius: 6px;
+      }
+
+      /* ── Button styles ── */
+      .btn-primary {
+        position: relative;
+        background: #4b7bc9;
+        color: #ffffff;
+        border: none;
+        border-radius: var(--radius);
+        padding: 8px 16px;
+        font-weight: 600;
+        font-size: 14px;
+        letter-spacing: -0.006em;
+        cursor: pointer;
+        transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+        box-shadow: rgba(0,0,0,0.1) 0px 1px 3px, rgba(75,123,201,0.12) 0px 2px 8px;
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .btn-primary:hover { background: #3a6ab8; box-shadow: rgba(0,0,0,0.14) 0px 4px 12px, rgba(0,117,222,0.18) 0px 4px 16px; }
+      }
+      .btn-primary:active { transform: scale(0.97); }
+
+      .btn-ghost {
+        position: relative;
+        background: rgba(0,0,0,0.04);
+        border: 1px solid rgba(0,0,0,0.1);
+        color: var(--accent2);
+        border-radius: var(--radius);
+        font-weight: 500;
+        letter-spacing: -0.006em;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .btn-ghost:hover {
+          border-color: rgba(0,0,0,0.18);
+          color: rgba(0,0,0,0.9);
+          background: rgba(0,0,0,0.06);
+        }
+      }
+      .btn-ghost:active { transform: scale(0.98); }
+
+      .btn-danger {
+        background: transparent;
+        border: 1px solid rgba(224,62,62,0.22);
+        color: var(--red);
+        border-radius: var(--radius);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .btn-danger:hover { background: rgba(224,62,62,0.05); border-color: var(--red); }
+      }
+      .btn-danger:active { transform: scale(0.98); }
+
+      /* ── Card hover lift — Emil: subtle translateY, enhanced shadow ── */
+      .card-lift {
+        transition: transform 0.2s var(--ease-out),
+                    box-shadow 0.2s var(--ease-out);
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .card-lift:hover {
+          transform: translateY(-2px);
+          box-shadow: rgba(0,0,0,0.06) 0px 8px 24px,
+                      rgba(0,0,0,0.04) 0px 4px 12px,
+                      rgba(0,0,0,0.02) 0px 1px 4px !important;
+        }
+      }
+
+      /* ── Sidebar nav ── */
+      .nav-btn {
+        position: relative;
+        overflow: hidden;
+        transition: background 0.12s ease, color 0.12s ease;
+        border-radius: 6px;
+        width: 100%;
+      }
+      @media (hover: hover) and (pointer: fine) {
+        .nav-btn:hover {
+          background: var(--surface) !important;
+        }
+      }
+      .nav-btn.active {
+        background: var(--nav-active-bg) !important;
+        color: rgba(0,0,0,0.9) !important;
+        font-weight: 600 !important;
+      }
+      .nav-btn.active::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 50%;
+        transform: translateY(-50%);
+        width: 3px; height: 56%;
+        background: #4b7bc9;
+        border-radius: 0 2px 2px 0;
+        animation: navIndicator 0.2s var(--ease-out) both;
+      }
+
+      /* ── Pulse dot ── */
+      .pulse-dot {
+        display: inline-block;
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        background: var(--green);
+      }
+
+      /* ── Pill badge ── */
+      .badge-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 9px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        line-height: 1.4;
+      }
+
+      /* Legacy compat */
+      .neon-btn { transition: all 0.15s ease; }
+      .neon-card { position: relative; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
