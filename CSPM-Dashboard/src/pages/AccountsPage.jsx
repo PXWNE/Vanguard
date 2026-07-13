@@ -103,12 +103,13 @@ const labelStyle = {
   fontFamily: "var(--font-ui)", fontWeight: 600,
 };
 
-function Field({ label, type = "text", placeholder, value, onChange }) {
+function Field({ label, type = "text", placeholder, value, onChange, autoComplete }) {
   return (
     <div style={{ marginBottom: "14px" }}>
       <label style={labelStyle}>{label}</label>
       <input type={type} placeholder={placeholder} value={value}
-        onChange={e => onChange(e.target.value)} style={inputStyle} autoComplete="off" />
+        onChange={e => onChange(e.target.value)} style={inputStyle}
+        autoComplete={autoComplete || "off"} />
     </div>
   );
 }
@@ -185,6 +186,7 @@ function AddAccountModal({ token, userRole, onClose, onAdded }) {
   const [error,   setError]   = useState(null);
   const [teams,   setTeams]   = useState([]);
   const [teamId,  setTeamId]  = useState("");
+  const modalRef = useRef(null);
 
   // Load available teams once
   useEffect(() => {
@@ -195,6 +197,13 @@ function AddAccountModal({ token, userRole, onClose, onAdded }) {
         if (t.length === 1) setTeamId(t[0].id);
       }).catch(() => {});
   }, [token]);
+
+  // Guard against the browser auto-scrolling to a lower field (e.g. the
+  // password manager focusing the secret-key field) and hiding the name
+  // field above the fold.
+  useEffect(() => {
+    modalRef.current?.scrollTo(0, 0);
+  }, []);
 
   function buildPayload() {
     const eff = intervalMode === "continuous" ? 0.25
@@ -252,7 +261,7 @@ function AddAccountModal({ token, userRole, onClose, onAdded }) {
       display:"flex", alignItems:"center", justifyContent:"center", zIndex:200,
       animation:"overlayIn 0.2s ease-out" }}
       onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background:"var(--surface)", border:"1px solid var(--border)",
+      <div ref={modalRef} style={{ background:"var(--surface)", border:"1px solid var(--border)",
         borderRadius:"12px", padding:"32px", width:"500px", maxHeight:"90vh", overflowY:"auto",
         animation:"modalIn 0.25s cubic-bezier(0.23, 1, 0.32, 1)" }}>
 
@@ -313,7 +322,7 @@ function AddAccountModal({ token, userRole, onClose, onAdded }) {
 
         {cloud === "aws" && <>
           <Field label="ACCESS KEY ID *"     placeholder="AKIA..." value={keyId}   onChange={setKeyId} />
-          <Field label="SECRET ACCESS KEY *" type="password"
+          <Field label="SECRET ACCESS KEY *" type="password" autoComplete="new-password"
             placeholder="••••••••••••••••••••••••••••••••••••••" value={secret} onChange={setSecret} />
           <Field label="REGION" placeholder="e.g. us-east-1 (optional)" value={region} onChange={setRegion} />
         </>}
@@ -321,7 +330,7 @@ function AddAccountModal({ token, userRole, onClose, onAdded }) {
           <Field label="SUBSCRIPTION ID *" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" value={subId}     onChange={setSubId} />
           <Field label="TENANT ID *"       placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" value={tenant}    onChange={setTenant} />
           <Field label="CLIENT ID *"       placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" value={clientId}  onChange={setClientId} />
-          <Field label="CLIENT SECRET *"   type="password"
+          <Field label="CLIENT SECRET *"   type="password" autoComplete="new-password"
             placeholder="••••••••••••••••••••••••••••••••" value={clientSec} onChange={setClientSec} />
         </>}
 
