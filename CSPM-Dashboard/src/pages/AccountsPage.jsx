@@ -103,11 +103,11 @@ const labelStyle = {
   fontFamily: "var(--font-ui)", fontWeight: 600,
 };
 
-function Field({ label, type = "text", placeholder, value, onChange, autoComplete }) {
+function Field({ label, type = "text", placeholder, value, onChange, autoComplete, inputRef }) {
   return (
     <div style={{ marginBottom: "14px" }}>
       <label style={labelStyle}>{label}</label>
-      <input type={type} placeholder={placeholder} value={value}
+      <input ref={inputRef} type={type} placeholder={placeholder} value={value}
         onChange={e => onChange(e.target.value)} style={inputStyle}
         autoComplete={autoComplete || "off"} />
     </div>
@@ -187,6 +187,7 @@ function AddAccountModal({ token, userRole, onClose, onAdded }) {
   const [teams,   setTeams]   = useState([]);
   const [teamId,  setTeamId]  = useState("");
   const modalRef = useRef(null);
+  const nameInputRef = useRef(null);
 
   // Load available teams once
   useEffect(() => {
@@ -198,11 +199,25 @@ function AddAccountModal({ token, userRole, onClose, onAdded }) {
       }).catch(() => {});
   }, [token]);
 
-  // Guard against the browser auto-scrolling to a lower field (e.g. the
-  // password manager focusing the secret-key field) and hiding the name
-  // field above the fold.
+  // Guard against the browser (esp. Chrome's password manager, which
+  // ignores autocomplete="off"/"new-password" on password fields for its
+  // own scroll/highlight behavior) scrolling the modal down to the secret
+  // field and hiding the name field above the fold. Actively focusing the
+  // name field wins the browser's "scroll focused element into view"
+  // behavior over any later, async password-manager focus attempt, and
+  // re-asserting scrollTop for a short window catches anything that still
+  // slips through after mount.
   useEffect(() => {
     modalRef.current?.scrollTo(0, 0);
+    nameInputRef.current?.focus();
+    let ticks = 0;
+    const id = setInterval(() => {
+      if (modalRef.current && modalRef.current.scrollTop > 0) {
+        modalRef.current.scrollTo(0, 0);
+      }
+      if (++ticks >= 10) clearInterval(id);
+    }, 100);
+    return () => clearInterval(id);
   }, []);
 
   function buildPayload() {
@@ -272,7 +287,7 @@ function AddAccountModal({ token, userRole, onClose, onAdded }) {
             color:"var(--accent3)", fontSize:"20px", cursor:"pointer" }}>×</button>
         </div>
 
-        <Field label="ACCOUNT NAME *" placeholder='e.g. "Production AWS"' value={name} onChange={setName} />
+        <Field label="ACCOUNT NAME *" placeholder='e.g. "Production AWS"' value={name} onChange={setName} inputRef={nameInputRef} />
 
         <CategoryPicker value={category} onChange={setCategory} />
 
