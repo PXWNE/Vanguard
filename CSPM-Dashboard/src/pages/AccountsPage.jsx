@@ -306,17 +306,30 @@ function AddAccountModal({ token, userRole, onClose, onAdded }) {
       animation:"overlayIn 0.2s ease-out" }}
       onClick={e => e.target === e.currentTarget && onClose()}>
       <div ref={modalRef} style={{ background:"var(--surface)", border:"1px solid var(--border)",
-        borderRadius:"12px", padding:"32px", width:"500px", maxHeight:"90vh", overflowY:"auto",
+        borderRadius:"12px", width:"500px", maxHeight:"90vh", overflowY:"auto",
         animation:"modalIn 0.25s cubic-bezier(0.23, 1, 0.32, 1)" }}>
 
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"24px" }}>
-          <h2 style={{ fontFamily:"var(--font-display)", fontSize:"18px", fontWeight:700,
-            color:"var(--accent)", letterSpacing:"0.05em", margin:0 }}>ADD CLOUD ACCOUNT</h2>
-          <button onClick={onClose} style={{ background:"transparent", border:"none",
-            color:"var(--accent3)", fontSize:"20px", cursor:"pointer" }}>×</button>
+        {/*
+          Pinned so the header and name field are always visible regardless
+          of scroll position — this form is tall enough to overflow the
+          90vh cap at some viewport-height/zoom combinations, and no matter
+          what causes the container to land scrolled (zoom level, browser
+          extensions, focus-driven scrolling), the account name shouldn't
+          disappear above the fold.
+        */}
+        <div style={{ position:"sticky", top:0, zIndex:1, background:"var(--surface)",
+          padding:"32px 32px 0", marginBottom:"14px" }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"24px" }}>
+            <h2 style={{ fontFamily:"var(--font-display)", fontSize:"18px", fontWeight:700,
+              color:"var(--accent)", letterSpacing:"0.05em", margin:0 }}>ADD CLOUD ACCOUNT</h2>
+            <button onClick={onClose} style={{ background:"transparent", border:"none",
+              color:"var(--accent3)", fontSize:"20px", cursor:"pointer" }}>×</button>
+          </div>
+
+          <Field label="ACCOUNT NAME *" placeholder='e.g. "Production AWS"' value={name} onChange={setName} inputRef={nameInputRef} />
         </div>
 
-        <Field label="ACCOUNT NAME *" placeholder='e.g. "Production AWS"' value={name} onChange={setName} inputRef={nameInputRef} />
+        <div style={{ padding:"0 32px 32px" }}>
 
         <CategoryPicker value={category} onChange={setCategory} />
 
@@ -461,6 +474,7 @@ function AddAccountModal({ token, userRole, onClose, onAdded }) {
             cursor: saving ? "not-allowed" : "pointer",
             boxShadow: saving ? "none" : "var(--glow-cyan)",
                       }}>{saving ? "SAVING..." : "SAVE ACCOUNT"}</button>
+        </div>
         </div>
       </div>
     </div>
