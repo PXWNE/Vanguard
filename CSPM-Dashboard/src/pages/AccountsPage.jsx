@@ -104,12 +104,41 @@ const labelStyle = {
 };
 
 function Field({ label, type = "text", placeholder, value, onChange, autoComplete, inputRef }) {
+  const isSecret = type === "password";
+  const [reveal, setReveal] = useState(false);
   return (
     <div style={{ marginBottom: "14px" }}>
       <label style={labelStyle}>{label}</label>
-      <input ref={inputRef} type={type} placeholder={placeholder} value={value}
-        onChange={e => onChange(e.target.value)} style={inputStyle}
-        autoComplete={autoComplete || "off"} />
+      <div style={{ position: "relative" }}>
+        {/*
+          Secret fields deliberately avoid type="password". Every password
+          manager (Chrome's built-in one and extensions like LastPass/
+          Bitwarden/1Password) hooks input[type=password] specifically —
+          for a browser extension in particular, that hook runs with more
+          privilege than page JS and can keep re-scrolling/re-focusing the
+          field even after a page-level fix. Masking with CSS instead of a
+          real password input sidesteps every password manager entirely.
+        */}
+        <input ref={inputRef} type="text" placeholder={placeholder} value={value}
+          onChange={e => onChange(e.target.value)}
+          style={{
+            ...inputStyle,
+            ...(isSecret && !reveal ? { WebkitTextSecurity: "disc", textSecurity: "disc" } : {}),
+            ...(isSecret ? { paddingRight: 52 } : {}),
+          }}
+          autoComplete={isSecret ? "off" : (autoComplete || "off")}
+          data-lpignore={isSecret ? "true" : undefined}
+          data-1p-ignore={isSecret ? "true" : undefined}
+          data-bwignore={isSecret ? "true" : undefined} />
+        {isSecret && (
+          <button type="button" onClick={() => setReveal(r => !r)}
+            style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
+              background: "transparent", border: "none", cursor: "pointer", fontSize: 10,
+              fontWeight: 700, letterSpacing: "0.05em", color: "var(--accent3)" }}>
+            {reveal ? "HIDE" : "SHOW"}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
